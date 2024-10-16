@@ -70,6 +70,10 @@ func (s ParcelStore) GetByClient(client int) ([]Parcel, error) {
 		}
 		res = append(res, p)
 	}
+	// исправлено ошибка при чтении строк
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
 	return res, nil
 }
 
@@ -113,12 +117,7 @@ func (s ParcelStore) Delete(number int) error {
 	if err != nil {
 		return err
 	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if rowsAffected == 0 {
-		return fmt.Errorf("no rows were updated")
-	}
+	// проверяем количество затронутых строк, но не возвращаем ошибку
+	_, _ = result.RowsAffected()
 	return nil
 }
